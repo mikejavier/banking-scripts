@@ -8,7 +8,7 @@ const stringify = require("csv-stringify");
 dayjs.extend(customParseFormat);
 
 const readXlsxFile = () => {
-  const file = xlsx.readFile("./base_enriquecida_exp.xlsx", { cellDates: true });
+  const file = xlsx.readFile("./base_enriquecida_bk.xlsx", { cellDates: true });
   let data = [];
   const sheets = file.SheetNames;
   for (let i = 0; i < sheets.length; i++) {
@@ -39,24 +39,22 @@ const readCsvFile = async () => {
 
   dataFromCsv.forEach((data) => {
     const foundPersonInXlsx = dataFromXlsx.find(
-      (findData) => findData.person_id === data.person_id
+      (findData) => findData.CPF === data.cpf
     );
     console.log(foundPersonInXlsx);
     if (foundPersonInXlsx === undefined) return;
 
-    data.full_name = foundPersonInXlsx.full_name;
-    data.birthday = dayjs(foundPersonInXlsx.birthday).format("YYYY-MM-DD");
-    data.mother_name = foundPersonInXlsx.mother_name;
+    data.full_name = foundPersonInXlsx['Nome Completo'];
+    data.birthday = dayjs(foundPersonInXlsx['Data de Nascimento']).format("YYYY-MM-DD");
+    data.mother_name = foundPersonInXlsx['Nome Mãe Completo'];
+    data.street = foundPersonInXlsx['Endereço - RUA'] !== '' ? foundPersonInXlsx['Endereço - RUA'] : data.street
+    data.complement = foundPersonInXlsx['Endereço - COMPLEMENTO'] !== '' ? foundPersonInXlsx['Endereço - COMPLEMENTO'] : data.complement
+    data.number = foundPersonInXlsx['Endereço - NUMERO'] !== '' ? foundPersonInXlsx['Endereço - NUMERO'] : data.number
+    data.neighborhood = foundPersonInXlsx['Endereço - BAIRRO'] !== '' ? foundPersonInXlsx['Endereço - BAIRRO'] : data.neighborhood
+    data.city = foundPersonInXlsx['Endereço - CIDADE'] !== '' ? foundPersonInXlsx['Endereço - CIDADE'] : data.city
+    data.state = foundPersonInXlsx['Endereço - ESTADO'] !== '' ? foundPersonInXlsx['Endereço - ESTADO'] : data.state
     data.state = data.state.trim();
     data.country = "Brasil";
-
-    if (isNaN(Number(data.number)) || data.number.charAt(0) === ".") {
-      data.complement =
-        `${data.number} ${data.complement}`.length < 30
-          ? `${data.number} ${data.complement}`
-          : data.complement;
-      data.number = "0";
-    }
   });
 
   stringify(dataFromCsv, { header: false, delimiter: ";" }, (err, output) => {

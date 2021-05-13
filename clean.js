@@ -27,8 +27,8 @@ const readCsvFile = async () => {
     data.state = data.state.trim();
     data.country = 'Brasil'
 
-    if (isNaN(Number(data.number))) {
-      data.complement = data.complement.length < 30 ? `${data.number} ${data.complement}` : data.complement;
+    if (Math.sign(data.number) !== 1 || data.number % 1 !== 0) {
+      data.complement = `${data.number} ${data.complement}`.length < 30 ? `${data.number} ${data.complement}` : data.complement;
       data.number = '0'
     }
   });
@@ -36,7 +36,7 @@ const readCsvFile = async () => {
   stringify(dataFromCsv, { header: false, delimiter: ';' }, (err, output) => {
     if (err) throw err;
 
-    fs.writeFile('result_cleaned.csv', output, (err) => {
+    fs.writeFile(`cadastro_pf_${dayjs().format('YYYYMMDDHHmmss')}.csv`, output, (err) => {
       if (err) throw err;
       console.log("concluido");
     });
